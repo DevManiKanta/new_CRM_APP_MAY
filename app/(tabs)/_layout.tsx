@@ -29,6 +29,10 @@ function NativeTabLayout() {
         <Icon sf={{ default: "checkmark.circle", selected: "checkmark.circle.fill" }} />
         <Label>Completed</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="stats">
+        <Icon sf={{ default: "chart.bar", selected: "chart.bar.fill" }} />
+        <Label>Stats</Label>
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
@@ -97,6 +101,15 @@ function ClassicTabLayout() {
           title: "Completed",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="checkmark-circle" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="stats"
+        options={{
+          title: "Stats",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="stats-chart" size={size} color={color} />
           ),
         }}
       />
