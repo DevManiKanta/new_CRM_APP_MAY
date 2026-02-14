@@ -11,24 +11,24 @@ import SearchFilter from "@/components/SearchFilter";
 import { CustomerListSkeleton } from "@/components/SkeletonLoader";
 import EmptyState from "@/components/EmptyState";
 
-const activeStatuses: CustomerStatus[] = ["not_responded", "busy", "picked_call"];
+const followStatuses: CustomerStatus[] = ["asked_time", "interested"];
 
-export default function ActiveCustomersScreen() {
+export default function FollowLaterScreen() {
   const insets = useSafeAreaInsets();
-  const { getCustomersByTab, searchCustomers, filterByStatus } = useCustomers();
+  const { getCustomersByTab, searchCustomers } = useCustomers();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<CustomerStatus | "all">("all");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 800);
+    const timer = setTimeout(() => setIsLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
   const customers = (() => {
-    let result = getCustomersByTab("active");
+    let result = getCustomersByTab("follow_later");
     if (searchQuery) {
-      result = searchCustomers(searchQuery, "active");
+      result = searchCustomers(searchQuery, "follow_later");
     }
     if (statusFilter !== "all") {
       result = result.filter((c) => c.status === statusFilter);
@@ -42,11 +42,11 @@ export default function ActiveCustomersScreen() {
     <View style={[styles.container, { paddingTop: insets.top + webTopInset }]}>
       <Animated.View entering={FadeIn.duration(300)} style={styles.header}>
         <View>
-          <Text style={styles.title}>Active Customers</Text>
-          <Text style={styles.count}>{customers.length} contacts</Text>
+          <Text style={styles.title}>Follow Later</Text>
+          <Text style={styles.count}>{customers.length} reminders</Text>
         </View>
         <View style={styles.headerIcon}>
-          <Feather name="users" size={20} color={Colors.light.accent} />
+          <Feather name="clock" size={20} color={Colors.light.purple} />
         </View>
       </Animated.View>
 
@@ -55,16 +55,16 @@ export default function ActiveCustomersScreen() {
         onSearchChange={setSearchQuery}
         activeFilter={statusFilter}
         onFilterChange={setStatusFilter}
-        statusOptions={activeStatuses}
+        statusOptions={followStatuses}
       />
 
       {isLoading ? (
-        <CustomerListSkeleton count={5} />
+        <CustomerListSkeleton count={4} />
       ) : customers.length === 0 ? (
         <EmptyState
-          icon="inbox"
-          title="No active customers"
-          subtitle={searchQuery ? "Try a different search term" : "All caught up! No customers need follow-up."}
+          icon="clock"
+          title="No follow-ups scheduled"
+          subtitle={searchQuery ? "Try a different search term" : "Customers who ask for time will appear here."}
         />
       ) : (
         <FlatList
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: Colors.light.accentLight,
+    backgroundColor: Colors.light.purpleLight,
     alignItems: "center",
     justifyContent: "center",
   },
