@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Platform } from "react-native";
+import { View, Text, TextInput, StyleSheet, FlatList, Platform, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
@@ -8,18 +8,22 @@ import { useCustomers } from "@/context/CustomerContext";
 import CustomerCard from "@/components/CustomerCard";
 import { CustomerListSkeleton } from "@/components/SkeletonLoader";
 import EmptyState from "@/components/EmptyState";
+import ProfileMenu from "@/components/ProfileMenu";
 
 export default function CompletedScreen() {
   const insets = useSafeAreaInsets();
-  const { getCustomersByTab } = useCustomers();
+  const { getCustomersByTab, searchCustomers } = useCustomers();
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 600);
     return () => clearTimeout(timer);
   }, []);
 
-  const customers = getCustomersByTab("completed");
+  const customers = searchQuery
+    ? searchCustomers(searchQuery, "completed")
+    : getCustomersByTab("completed");
 
   const totalRevenue = customers.reduce((sum, c) => sum + c.totalPayment, 0);
 
@@ -32,10 +36,26 @@ export default function CompletedScreen() {
           <Text style={styles.title}>Completed</Text>
           <Text style={styles.count}>{customers.length} deals closed</Text>
         </View>
-        <View style={styles.headerIcon}>
-          <Feather name="check-circle" size={20} color={Colors.light.success} />
-        </View>
+        <ProfileMenu />
       </Animated.View>
+
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBox}>
+          <Feather name="search" size={16} color={Colors.light.textTertiary} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search completed deals..."
+            placeholderTextColor={Colors.light.textTertiary}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <Pressable onPress={() => setSearchQuery("")}>
+              <Feather name="x" size={16} color={Colors.light.textTertiary} />
+            </Pressable>
+          )}
+        </View>
+      </View>
 
       {customers.length > 0 && (
         <Animated.View entering={FadeIn.delay(200).duration(400)} style={styles.statsCard}>
@@ -66,7 +86,7 @@ export default function CompletedScreen() {
         <EmptyState
           icon="award"
           title="No completed deals yet"
-          subtitle="Customers marked as Completed will appear here with success indicators."
+          subtitle={searchQuery ? "Try a different search term" : "Customers marked as Completed will appear here with success indicators."}
         />
       ) : (
         <FlatList
@@ -107,13 +127,25 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     marginTop: 2,
   },
-  headerIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: Colors.light.successLight,
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  searchBox: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: Colors.light.card,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 44,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: Colors.light.cardBorder,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.light.text,
   },
   statsCard: {
     flexDirection: "row",

@@ -6,6 +6,7 @@ import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useCustomers } from "@/context/CustomerContext";
 import { STATUS_CONFIG, CustomerStatus } from "@/data/customers";
+import ProfileMenu from "@/components/ProfileMenu";
 
 interface StatCardProps {
   icon: string;
@@ -92,9 +93,7 @@ export default function StatsScreen() {
           <Text style={styles.title}>Statistics</Text>
           <Text style={styles.dateText}>{dateLabel}</Text>
         </View>
-        <View style={styles.headerIcon}>
-          <Feather name="bar-chart-2" size={20} color="#F59E0B" />
-        </View>
+        <ProfileMenu />
       </Animated.View>
 
       <ScrollView
@@ -265,14 +264,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.light.textSecondary,
     marginTop: 2,
-  },
-  headerIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: Colors.light.warningLight,
-    alignItems: "center",
-    justifyContent: "center",
   },
   scrollContent: {
     paddingBottom: 120,

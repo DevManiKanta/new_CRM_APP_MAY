@@ -10,6 +10,7 @@ import CustomerCard from "@/components/CustomerCard";
 import SearchFilter from "@/components/SearchFilter";
 import { CustomerListSkeleton } from "@/components/SkeletonLoader";
 import EmptyState from "@/components/EmptyState";
+import ProfileMenu from "@/components/ProfileMenu";
 
 const followStatuses: CustomerStatus[] = ["asked_time", "interested"];
 
@@ -45,9 +46,7 @@ export default function FollowLaterScreen() {
           <Text style={styles.title}>Follow Later</Text>
           <Text style={styles.count}>{customers.length} reminders</Text>
         </View>
-        <View style={styles.headerIcon}>
-          <Feather name="clock" size={20} color={Colors.light.purple} />
-        </View>
+        <ProfileMenu />
       </Animated.View>
 
       <SearchFilter
@@ -104,14 +103,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.light.textSecondary,
     marginTop: 2,
-  },
-  headerIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: Colors.light.purpleLight,
-    alignItems: "center",
-    justifyContent: "center",
   },
   list: {
     paddingTop: 8,
