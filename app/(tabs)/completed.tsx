@@ -5,14 +5,17 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useCustomers } from "@/context/CustomerContext";
+import { useDrawer } from "@/context/DrawerContext";
 import CustomerCard from "@/components/CustomerCard";
 import { CustomerListSkeleton } from "@/components/SkeletonLoader";
 import EmptyState from "@/components/EmptyState";
 import ProfileMenu from "@/components/ProfileMenu";
+import DrawerButton from "@/components/DrawerButton";
 
 export default function CompletedScreen() {
   const insets = useSafeAreaInsets();
   const { getCustomersByTab, searchCustomers } = useCustomers();
+  const { openDrawer } = useDrawer();
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -32,7 +35,8 @@ export default function CompletedScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + webTopInset }]}>
       <Animated.View entering={FadeIn.duration(300)} style={styles.header}>
-        <View>
+        <DrawerButton onPress={openDrawer} />
+        <View style={styles.headerCenter}>
           <Text style={styles.title}>Completed</Text>
           <Text style={styles.count}>{customers.length} deals closed</Text>
         </View>
@@ -116,6 +120,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 12,
+    gap: 12,
+  },
+  headerCenter: {
+    flex: 1,
   },
   title: {
     fontSize: 24,

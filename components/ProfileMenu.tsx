@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Pressable, Modal } from "react-native";
+import { useRouter } from "expo-router";
 import Animated, {
   FadeIn,
   FadeOut,
@@ -16,6 +17,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function ProfileMenu() {
   const { user, logout } = useAuth();
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const scale = useSharedValue(1);
 
@@ -73,7 +75,9 @@ export default function ProfileMenu() {
             <Pressable
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
               onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setVisible(false);
+                router.push("/profile" as any);
               }}
             >
               <View style={[styles.menuIcon, { backgroundColor: Colors.light.accentLight }]}>
@@ -86,7 +90,9 @@ export default function ProfileMenu() {
             <Pressable
               style={({ pressed }) => [styles.menuItem, pressed && styles.menuItemPressed]}
               onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setVisible(false);
+                router.push("/settings" as any);
               }}
             >
               <View style={[styles.menuIcon, { backgroundColor: Colors.light.purpleLight }]}>

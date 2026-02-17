@@ -9,11 +9,14 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { queryClient } from "@/lib/query-client";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { CustomerProvider } from "@/context/CustomerContext";
+import { DrawerProvider, useDrawer } from "@/context/DrawerContext";
+import DrawerMenu from "@/components/DrawerMenu";
 
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
   const { isAuthenticated } = useAuth();
+  const { isDrawerOpen, closeDrawer } = useDrawer();
   const segments = useSegments();
   const router = useRouter();
 
@@ -26,12 +29,17 @@ function RootLayoutNav() {
   }, [isAuthenticated, segments]);
 
   return (
-    <Stack screenOptions={{ headerShown: false, headerBackTitle: "Back" }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="signup" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="customer/[id]" />
-    </Stack>
+    <>
+      <Stack screenOptions={{ headerShown: false, headerBackTitle: "Back" }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="signup" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="customer/[id]" />
+        <Stack.Screen name="profile" options={{ presentation: "modal" }} />
+        <Stack.Screen name="settings" options={{ presentation: "modal" }} />
+      </Stack>
+      {isAuthenticated && <DrawerMenu visible={isDrawerOpen} onClose={closeDrawer} />}
+    </>
   );
 }
 
@@ -56,11 +64,13 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <CustomerProvider>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <KeyboardProvider>
-                <RootLayoutNav />
-              </KeyboardProvider>
-            </GestureHandlerRootView>
+            <DrawerProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <KeyboardProvider>
+                  <RootLayoutNav />
+                </KeyboardProvider>
+              </GestureHandlerRootView>
+            </DrawerProvider>
           </CustomerProvider>
         </AuthProvider>
       </QueryClientProvider>

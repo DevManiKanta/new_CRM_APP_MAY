@@ -5,8 +5,10 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useCustomers } from "@/context/CustomerContext";
+import { useDrawer } from "@/context/DrawerContext";
 import { STATUS_CONFIG, CustomerStatus } from "@/data/customers";
 import ProfileMenu from "@/components/ProfileMenu";
+import DrawerButton from "@/components/DrawerButton";
 
 interface StatCardProps {
   icon: string;
@@ -65,6 +67,7 @@ function CallLogItem({ customerName, status, timestamp, index }: CallLogItemProp
 export default function StatsScreen() {
   const insets = useSafeAreaInsets();
   const { getTodayStats, getCallLogsByDate, customers } = useCustomers();
+  const { openDrawer } = useDrawer();
 
   const stats = getTodayStats();
   const today = new Date().toISOString().split("T")[0];
@@ -89,7 +92,8 @@ export default function StatsScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + webTopInset }]}>
       <Animated.View entering={FadeIn.duration(300)} style={styles.header}>
-        <View>
+        <DrawerButton onPress={openDrawer} />
+        <View style={styles.headerCenter}>
           <Text style={styles.title}>Statistics</Text>
           <Text style={styles.dateText}>{dateLabel}</Text>
         </View>
@@ -254,6 +258,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 12,
+    gap: 12,
+  },
+  headerCenter: {
+    flex: 1,
   },
   title: {
     fontSize: 24,

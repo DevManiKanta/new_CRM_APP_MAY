@@ -5,18 +5,21 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useCustomers } from "@/context/CustomerContext";
+import { useDrawer } from "@/context/DrawerContext";
 import { CustomerStatus } from "@/data/customers";
 import CustomerCard from "@/components/CustomerCard";
 import SearchFilter from "@/components/SearchFilter";
 import { CustomerListSkeleton } from "@/components/SkeletonLoader";
 import EmptyState from "@/components/EmptyState";
 import ProfileMenu from "@/components/ProfileMenu";
+import DrawerButton from "@/components/DrawerButton";
 
 const followStatuses: CustomerStatus[] = ["asked_time", "interested"];
 
 export default function FollowLaterScreen() {
   const insets = useSafeAreaInsets();
   const { getCustomersByTab, searchCustomers } = useCustomers();
+  const { openDrawer } = useDrawer();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<CustomerStatus | "all">("all");
   const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +45,8 @@ export default function FollowLaterScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + webTopInset }]}>
       <Animated.View entering={FadeIn.duration(300)} style={styles.header}>
-        <View>
+        <DrawerButton onPress={openDrawer} />
+        <View style={styles.headerCenter}>
           <Text style={styles.title}>Follow Later</Text>
           <Text style={styles.count}>{customers.length} reminders</Text>
         </View>
@@ -93,6 +97,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 12,
+    gap: 12,
+  },
+  headerCenter: {
+    flex: 1,
   },
   title: {
     fontSize: 24,
