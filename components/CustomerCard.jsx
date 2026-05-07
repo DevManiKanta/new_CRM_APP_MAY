@@ -13,12 +13,7 @@ import Colors from "@/constants/colors";
 import StatusBadge from "@/components/StatusBadge";
 import { Customer } from "@/data/customers";
 
-interface CustomerCardProps {
-  customer: Customer;
-  index: number;
-}
-
-export default function CustomerCard({ customer, index }: CustomerCardProps) {
+export default function CustomerCard({ customer, index }) {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -115,14 +110,14 @@ const styles = StyleSheet.create({
   avatarText: {
     color: "#fff",
     fontSize: 15,
-    fontWeight: "700" as const,
+    fontWeight: "700",
   },
   info: {
     flex: 1,
   },
   name: {
     fontSize: 15,
-    fontWeight: "600" as const,
+    fontWeight: "600",
     color: Colors.light.text,
   },
   company: {
@@ -150,7 +145,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 12,
-    fontWeight: "600" as const,
+    fontWeight: "600",
     color: Colors.light.text,
   },
 });

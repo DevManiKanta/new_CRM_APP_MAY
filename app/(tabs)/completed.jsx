@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "800" as const,
+    fontWeight: "800",
     color: Colors.light.text,
   },
   count: {
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 18,
-    fontWeight: "700" as const,
+    fontWeight: "700",
     color: Colors.light.success,
   },
   statLabel: {

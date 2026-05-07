@@ -70,19 +70,51 @@ function ItemCard({ item, index }: { item: PurchasedItem; index: number }) {
 
 function getCategoryIcon(cat: string) {
   switch (cat) {
-    case "Software": return "code";
-    case "Hardware": return "cpu";
-    case "Service": return "tool";
-    default: return "package";
+    case "Software":
+      return "code";
+    case "Hardware":
+      return "cpu";
+    case "Service":
+      return "tool";
+    case "Tea":
+      return "coffee";
+    case "Honey":
+      return "droplet";
+    case "Herbs":
+      return "feather";
+    case "Supplements":
+      return "heart";
+    case "Oils":
+      return "droplet";
+    case "Skincare":
+      return "sun";
+    default:
+      return "package";
   }
 }
 
 function getCategoryColor(cat: string) {
   switch (cat) {
-    case "Software": return { color: "#3B82F6", bg: "#DBEAFE" };
-    case "Hardware": return { color: "#8B5CF6", bg: "#EDE9FE" };
-    case "Service": return { color: "#10B981", bg: "#D1FAE5" };
-    default: return { color: "#64748B", bg: "#F1F5F9" };
+    case "Software":
+      return { color: "#3B82F6", bg: "#DBEAFE" };
+    case "Hardware":
+      return { color: "#8B5CF6", bg: "#EDE9FE" };
+    case "Service":
+      return { color: "#10B981", bg: "#D1FAE5" };
+    case "Tea":
+      return { color: "#16A34A", bg: "#DCFCE7" };
+    case "Honey":
+      return { color: "#D97706", bg: "#FEF3C7" };
+    case "Herbs":
+      return { color: "#059669", bg: "#D1FAE5" };
+    case "Supplements":
+      return { color: "#7C3AED", bg: "#EDE9FE" };
+    case "Oils":
+      return { color: "#EA580C", bg: "#FFEDD5" };
+    case "Skincare":
+      return { color: "#EC4899", bg: "#FCE7F3" };
+    default:
+      return { color: "#64748B", bg: "#F1F5F9" };
   }
 }
 
@@ -270,6 +302,26 @@ export default function CustomerDetailScreen() {
         ListEmptyComponent={
           <View style={styles.emptyItems}>
             <Text style={styles.emptyItemsText}>No items in this category</Text>
+          </View>
+        }
+        ListFooterComponent={
+          <View style={styles.billFooter}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.billBtn,
+                pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] },
+              ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                router.push({
+                  pathname: "/customer/[id]/bill",
+                  params: { id: customer.id },
+                });
+              }}
+            >
+              <Feather name="file-text" size={20} color="#fff" />
+              <Text style={styles.billBtnText}>Bill</Text>
+            </Pressable>
           </View>
         }
       />
@@ -548,6 +600,30 @@ const styles = StyleSheet.create({
   emptyItemsText: {
     fontSize: 14,
     color: Colors.light.textSecondary,
+  },
+  billFooter: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  billBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    backgroundColor: Colors.light.primary,
+    paddingVertical: 16,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  billBtnText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
   },
   stickyActions: {
     position: "absolute",

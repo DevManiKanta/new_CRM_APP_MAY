@@ -1,15 +1,8 @@
-import React, { createContext, useContext, useState, useMemo, ReactNode } from "react";
+import React, { createContext, useContext, useState, useMemo } from "react";
 
-interface DrawerContextValue {
-  isDrawerOpen: boolean;
-  openDrawer: () => void;
-  closeDrawer: () => void;
-  toggleDrawer: () => void;
-}
+const DrawerContext = createContext(null);
 
-const DrawerContext = createContext<DrawerContextValue | null>(null);
-
-export function DrawerProvider({ children }: { children: ReactNode }) {
+export function DrawerProvider({ children }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const openDrawer = () => setIsDrawerOpen(true);

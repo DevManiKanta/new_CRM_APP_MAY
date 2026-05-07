@@ -77,7 +77,7 @@ export default function ProfileMenu() {
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setVisible(false);
-                router.push("/profile" as any);
+                router.push("/profile");
               }}
             >
               <View style={[styles.menuIcon, { backgroundColor: Colors.light.accentLight }]}>
@@ -92,7 +92,7 @@ export default function ProfileMenu() {
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setVisible(false);
-                router.push("/settings" as any);
+                router.push("/settings");
               }}
             >
               <View style={[styles.menuIcon, { backgroundColor: Colors.light.purpleLight }]}>
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   avatarText: {
     color: "#fff",
     fontSize: 14,
-    fontWeight: "700" as const,
+    fontWeight: "700",
   },
   overlay: {
     flex: 1,
@@ -173,14 +173,14 @@ const styles = StyleSheet.create({
   profileAvatarText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "700" as const,
+    fontWeight: "700",
   },
   profileInfo: {
     flex: 1,
   },
   profileName: {
     fontSize: 16,
-    fontWeight: "700" as const,
+    fontWeight: "700",
     color: Colors.light.text,
   },
   profileRole: {
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     flex: 1,
     fontSize: 14,
-    fontWeight: "600" as const,
+    fontWeight: "600",
     color: Colors.light.text,
   },
 });

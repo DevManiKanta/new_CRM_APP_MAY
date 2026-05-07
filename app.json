@@ -42,6 +42,15 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": "https://replit.com/"
+      },
+      "eas": {
+        "projectId": "d42bfe67-9d66-4e1a-b322-05f970d55119"
+      }
+    },
+    "owner": "manikantamani"
   }
 }

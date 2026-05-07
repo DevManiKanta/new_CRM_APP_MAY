@@ -13,12 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 
-export type ErrorFallbackProps = {
-  error: Error;
-  resetError: () => void;
-};
-
-export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
+export function ErrorFallback({ error, resetError }) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const insets = useSafeAreaInsets();
@@ -43,7 +38,7 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
     }
   };
 
-  const formatErrorDetails = (): string => {
+  const formatErrorDetails = () => {
     let details = `Error: ${error.message}\n\n`;
     if (error.stack) {
       details += `Stack Trace:\n${error.stack}`;

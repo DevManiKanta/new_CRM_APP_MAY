@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useMemo, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useMemo, useCallback } from "react";
 import initialCustomers, {
   Customer,
   CustomerStatus,
@@ -6,49 +6,18 @@ import initialCustomers, {
   getTabForStatus,
 } from "@/data/customers";
 
-export interface CallLog {
-  id: string;
-  customerId: string;
-  customerName: string;
-  status: CustomerStatus;
-  timestamp: string;
-  date: string;
-}
-
-interface CustomerContextValue {
-  customers: Customer[];
-  callLogs: CallLog[];
-  getCustomersByTab: (tab: CustomerTab) => Customer[];
-  getCustomerById: (id: string) => Customer | undefined;
-  updateCustomerStatus: (id: string, status: CustomerStatus) => void;
-  searchCustomers: (query: string, tab: CustomerTab) => Customer[];
-  filterByStatus: (status: CustomerStatus | "all", tab: CustomerTab) => Customer[];
-  getTodayStats: () => {
-    totalCalls: number;
-    attempted: number;
-    pending: number;
-    completed: number;
-    interested: number;
-    busy: number;
-    notResponded: number;
-    askedTime: number;
-    pickedCall: number;
-  };
-  getCallLogsByDate: (date: string) => CallLog[];
-}
-
-const CustomerContext = createContext<CustomerContextValue | null>(null);
+const CustomerContext = createContext(null);
 
 function generateId() {
   return Date.now().toString() + Math.random().toString(36).substr(2, 9);
 }
 
-export function CustomerProvider({ children }: { children: ReactNode }) {
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
-  const [callLogs, setCallLogs] = useState<CallLog[]>([]);
+export function CustomerProvider({ children }) {
+  const [customers, setCustomers] = useState(initialCustomers);
+  const [callLogs, setCallLogs] = useState([]);
 
   const getCustomersByTab = useCallback(
-    (tab: CustomerTab) => {
+    (tab) => {
       const filtered = customers.filter((c) => c.tab === tab);
       if (tab === "completed") {
         return filtered.sort(
@@ -61,17 +30,50 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
   );
 
   const getCustomerById = useCallback(
-    (id: string) => customers.find((c) => c.id === id),
+    (id) => customers.find((c) => c.id === id),
     [customers]
   );
 
-  const updateCustomerStatus = useCallback((id: string, status: CustomerStatus) => {
+  const addCustomer = useCallback((data) => {
+    const id = `c_${generateId()}`;
+    const today = new Date().toISOString().split("T")[0];
+    const name = String(data?.name || "").trim();
+    const initials = name
+      ? name
+          .split(/\s+/)
+          .slice(0, 2)
+          .map((p) => p[0]?.toUpperCase())
+          .join("")
+      : "NC";
+
+    const status = data?.status || "not_responded";
+    const newCustomer = {
+      id,
+      name,
+      phone: String(data?.phone || "").trim(),
+      email: String(data?.email || "").trim(),
+      company: String(data?.company || "").trim(),
+      address: String(data?.address || "").trim(),
+      avatar: initials,
+      status,
+      tab: getTabForStatus(status),
+      totalItems: 0,
+      totalPayment: 0,
+      lastContact: today,
+      notes: String(data?.notes || "").trim(),
+      items: [],
+    };
+    setCustomers((prev) => [newCustomer, ...prev]);
+    return newCustomer;
+  }, []);
+
+  const updateCustomerStatus = useCallback((id, status) => {
     setCustomers((prev) => {
       const customer = prev.find((c) => c.id === id);
       if (customer) {
         const now = new Date();
         const dateStr = now.toISOString().split("T")[0];
-        const newLog: CallLog = {
+        const newLog = {
           id: generateId(),
           customerId: id,
           customerName: customer.name,
@@ -95,7 +97,7 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const searchCustomers = useCallback(
-    (query: string, tab: CustomerTab) => {
+    (query, tab) => {
       const q = query.toLowerCase();
       return customers.filter(
         (c) =>
@@ -109,7 +111,7 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
   );
 
   const filterByStatus = useCallback(
-    (status: CustomerStatus | "all", tab: CustomerTab) => {
+    (status, tab) => {
       if (status === "all") return customers.filter((c) => c.tab === tab);
       return customers.filter((c) => c.tab === tab && c.status === status);
     },
@@ -139,7 +141,7 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
   }, [callLogs, customers]);
 
   const getCallLogsByDate = useCallback(
-    (date: string) => callLogs.filter((l) => l.date === date),
+    (date) => callLogs.filter((l) => l.date === date),
     [callLogs]
   );
 
@@ -149,13 +151,14 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
       callLogs,
       getCustomersByTab,
       getCustomerById,
+      addCustomer,
       updateCustomerStatus,
       searchCustomers,
       filterByStatus,
       getTodayStats,
       getCallLogsByDate,
     }),
-    [customers, callLogs, getCustomersByTab, getCustomerById, updateCustomerStatus, searchCustomers, filterByStatus, getTodayStats, getCallLogsByDate]
+    [customers, callLogs, getCustomersByTab, getCustomerById, addCustomer, updateCustomerStatus, searchCustomers, filterByStatus, getTodayStats, getCallLogsByDate]
   );
 
   return <CustomerContext.Provider value={value}>{children}</CustomerContext.Provider>;

@@ -5,11 +5,7 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 
-interface DrawerButtonProps {
-  onPress: () => void;
-}
-
-export default function DrawerButton({ onPress }: DrawerButtonProps) {
+export default function DrawerButton({ onPress }) {
   const scale = useSharedValue(1);
 
   const animStyle = useAnimatedStyle(() => ({

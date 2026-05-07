@@ -1,21 +1,16 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { CustomerStatus, STATUS_CONFIG } from "@/data/customers";
+import { STATUS_CONFIG } from "@/data/customers";
 
-interface StatusBadgeProps {
-  status: CustomerStatus;
-  size?: "small" | "medium";
-}
-
-export default function StatusBadge({ status, size = "small" }: StatusBadgeProps) {
+export default function StatusBadge({ status, size = "small" }) {
   const config = STATUS_CONFIG[status];
   const isSmall = size === "small";
 
   return (
     <View style={[styles.badge, { backgroundColor: config.bg }, isSmall && styles.badgeSmall]}>
       <Feather
-        name={config.icon as any}
+        name={config.icon}
         size={isSmall ? 10 : 12}
         color={config.color}
       />
@@ -47,7 +42,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 12,
-    fontWeight: "600" as const,
+    fontWeight: "600",
   },
   textSmall: {
     fontSize: 10,

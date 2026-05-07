@@ -5,21 +5,13 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import Colors from "@/constants/colors";
 import { CustomerStatus, STATUS_CONFIG } from "@/data/customers";
 
-interface SearchFilterProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  activeFilter: CustomerStatus | "all";
-  onFilterChange: (filter: CustomerStatus | "all") => void;
-  statusOptions: CustomerStatus[];
-}
-
 export default function SearchFilter({
   searchQuery,
   onSearchChange,
   activeFilter,
   onFilterChange,
   statusOptions,
-}: SearchFilterProps) {
+}) {
   const [showFilters, setShowFilters] = useState(false);
 
   return (
@@ -161,7 +153,7 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: 12,
-    fontWeight: "500" as const,
+    fontWeight: "500",
     color: Colors.light.textSecondary,
   },
   chipTextActive: {

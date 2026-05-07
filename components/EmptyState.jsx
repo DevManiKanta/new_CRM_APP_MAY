@@ -4,17 +4,11 @@ import { Feather } from "@expo/vector-icons";
 import Animated, { FadeIn } from "react-native-reanimated";
 import Colors from "@/constants/colors";
 
-interface EmptyStateProps {
-  icon: string;
-  title: string;
-  subtitle: string;
-}
-
-export default function EmptyState({ icon, title, subtitle }: EmptyStateProps) {
+export default function EmptyState({ icon, title, subtitle }) {
   return (
     <Animated.View entering={FadeIn.duration(400)} style={styles.container}>
       <View style={styles.iconCircle}>
-        <Feather name={icon as any} size={32} color={Colors.light.textTertiary} />
+        <Feather name={icon} size={32} color={Colors.light.textTertiary} />
       </View>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.subtitle}>{subtitle}</Text>
@@ -41,7 +35,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "600" as const,
+    fontWeight: "600",
     color: Colors.light.text,
     textAlign: "center",
   },

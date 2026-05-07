@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, Pressable, Modal, ScrollView, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import Animated, {
@@ -6,9 +6,6 @@ import Animated, {
   FadeOut,
   SlideInLeft,
   SlideOutLeft,
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
 } from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -17,12 +14,7 @@ import Colors from "@/constants/colors";
 import { useAuth } from "@/context/AuthContext";
 import { useCustomers } from "@/context/CustomerContext";
 
-interface DrawerMenuProps {
-  visible: boolean;
-  onClose: () => void;
-}
-
-export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
+export default function DrawerMenu({ visible, onClose }) {
   const { user, logout } = useAuth();
   const { getCustomersByTab, getTodayStats } = useCustomers();
   const router = useRouter();
@@ -33,11 +25,11 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
   const followLaterCount = getCustomersByTab("follow_later").length;
   const completedCount = getCustomersByTab("completed").length;
 
-  const handleNavigation = (route: string) => {
+  const handleNavigation = (route) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onClose();
     setTimeout(() => {
-      router.push(route as any);
+      router.push(route);
     }, 300);
   };
 
@@ -89,7 +81,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
 
             {/* Quick Stats */}
             <View style={styles.statsSection}>
-              <Text style={styles.sectionTitle}>TODAY'S OVERVIEW</Text>
+              <Text style={styles.sectionTitle}>TODAY’S OVERVIEW</Text>
               <View style={styles.statsGrid}>
                 <View style={styles.statItem}>
                   <Text style={styles.statValue}>{stats.totalCalls}</Text>
@@ -111,7 +103,21 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
             {/* Navigation Section */}
             <View style={styles.navSection}>
               <Text style={styles.sectionTitle}>CUSTOMERS</Text>
-              
+
+              <Pressable
+                style={({ pressed }) => [styles.navItem, pressed && styles.navItemPressed]}
+                onPress={() => handleNavigation("/add-customer")}
+              >
+                <View style={[styles.navIcon, { backgroundColor: Colors.light.accentLight }]}>
+                  <Feather name="user-plus" size={20} color={Colors.light.accent} />
+                </View>
+                <View style={styles.navContent}>
+                  <Text style={styles.navText}>Add New Customer</Text>
+                  <Text style={styles.navSubtext}>Create a new contact</Text>
+                </View>
+                <Feather name="chevron-right" size={18} color={Colors.light.textTertiary} />
+              </Pressable>
+
               <Pressable
                 style={({ pressed }) => [styles.navItem, pressed && styles.navItemPressed]}
                 onPress={() => handleNavigation("/(tabs)")}
@@ -169,6 +175,41 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
                 <View style={styles.navContent}>
                   <Text style={styles.navText}>Statistics</Text>
                   <Text style={styles.navSubtext}>View analytics</Text>
+                </View>
+                <Feather name="chevron-right" size={18} color={Colors.light.textTertiary} />
+              </Pressable>
+            </View>
+
+            <View style={styles.divider} />
+
+            {/* Employee Section */}
+            <View style={styles.navSection}>
+              <Text style={styles.sectionTitle}>EMPLOYEE</Text>
+
+              <Pressable
+                style={({ pressed }) => [styles.navItem, pressed && styles.navItemPressed]}
+                onPress={() => handleNavigation("/punch")}
+              >
+                <View style={[styles.navIcon, { backgroundColor: Colors.light.successLight }]}>
+                  <Feather name="clock" size={20} color={Colors.light.success} />
+                </View>
+                <View style={styles.navContent}>
+                  <Text style={styles.navText}>Punch In</Text>
+                  <Text style={styles.navSubtext}>Record your time</Text>
+                </View>
+                <Feather name="chevron-right" size={18} color={Colors.light.textTertiary} />
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [styles.navItem, pressed && styles.navItemPressed]}
+                onPress={() => handleNavigation("/attendance")}
+              >
+                <View style={[styles.navIcon, { backgroundColor: Colors.light.purpleLight }]}>
+                  <Feather name="calendar" size={20} color={Colors.light.purple} />
+                </View>
+                <View style={styles.navContent}>
+                  <Text style={styles.navText}>Attendance</Text>
+                  <Text style={styles.navSubtext}>Present, absent & leaves</Text>
                 </View>
                 <Feather name="chevron-right" size={18} color={Colors.light.textTertiary} />
               </Pressable>
@@ -302,14 +343,14 @@ const styles = StyleSheet.create({
   profileAvatarText: {
     color: "#fff",
     fontSize: 20,
-    fontWeight: "700" as const,
+    fontWeight: "700",
   },
   profileInfo: {
     flex: 1,
   },
   profileName: {
     fontSize: 18,
-    fontWeight: "700" as const,
+    fontWeight: "700",
     color: Colors.light.text,
   },
   profileRole: {
@@ -324,7 +365,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 11,
-    fontWeight: "700" as const,
+    fontWeight: "700",
     color: Colors.light.textSecondary,
     letterSpacing: 0.5,
     marginBottom: 12,
@@ -344,12 +385,12 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 20,
-    fontWeight: "700" as const,
+    fontWeight: "700",
     color: Colors.light.text,
   },
   statLabel: {
     fontSize: 10,
-    fontWeight: "500" as const,
+    fontWeight: "500",
     color: Colors.light.textSecondary,
     marginTop: 2,
     textAlign: "center",
@@ -384,7 +425,7 @@ const styles = StyleSheet.create({
   },
   navText: {
     fontSize: 15,
-    fontWeight: "600" as const,
+    fontWeight: "600",
     color: Colors.light.text,
   },
   navSubtext: {
@@ -405,6 +446,6 @@ const styles = StyleSheet.create({
   badgeText: {
     color: "#fff",
     fontSize: 11,
-    fontWeight: "700" as const,
+    fontWeight: "700",
   },
 });

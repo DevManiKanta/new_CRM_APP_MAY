@@ -6,7 +6,6 @@ import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useCustomers } from "@/context/CustomerContext";
 import { useDrawer } from "@/context/DrawerContext";
-import { CustomerStatus } from "@/data/customers";
 import CustomerCard from "@/components/CustomerCard";
 import SearchFilter from "@/components/SearchFilter";
 import { CustomerListSkeleton } from "@/components/SkeletonLoader";
@@ -14,14 +13,14 @@ import EmptyState from "@/components/EmptyState";
 import ProfileMenu from "@/components/ProfileMenu";
 import DrawerButton from "@/components/DrawerButton";
 
-const followStatuses: CustomerStatus[] = ["asked_time", "interested"];
+const followStatuses = ["asked_time", "interested"];
 
 export default function FollowLaterScreen() {
   const insets = useSafeAreaInsets();
   const { getCustomersByTab, searchCustomers } = useCustomers();
   const { openDrawer } = useDrawer();
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<CustomerStatus | "all">("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -104,7 +103,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "800" as const,
+    fontWeight: "800",
     color: Colors.light.text,
   },
   count: {

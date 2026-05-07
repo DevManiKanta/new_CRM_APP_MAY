@@ -1,23 +1,14 @@
-import React, { createContext, useContext, useState, useMemo, ReactNode } from "react";
+import React, { createContext, useContext, useState, useMemo } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-interface AuthContextValue {
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  user: { username: string } | null;
-  login: (username: string, password: string) => Promise<boolean>;
-  signup: (username: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-}
+const AuthContext = createContext(null);
 
-const AuthContext = createContext<AuthContextValue | null>(null);
-
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState<{ username: string } | null>(null);
+  const [user, setUser] = useState(null);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (username, password) => {
     setIsLoading(true);
     await new Promise((r) => setTimeout(r, 1500));
     const stored = await AsyncStorage.getItem("crm_user");
@@ -41,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
-  const signup = async (username: string, password: string): Promise<boolean> => {
+  const signup = async (username, password) => {
     setIsLoading(true);
     await new Promise((r) => setTimeout(r, 1500));
     if (username.length >= 3 && password.length >= 6) {

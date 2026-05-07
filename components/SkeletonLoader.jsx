@@ -9,14 +9,7 @@ import Animated, {
 } from "react-native-reanimated";
 import Colors from "@/constants/colors";
 
-interface SkeletonProps {
-  width?: number | string;
-  height?: number;
-  borderRadius?: number;
-  style?: any;
-}
-
-function SkeletonBlock({ width = "100%", height = 16, borderRadius = 8, style }: SkeletonProps) {
+function SkeletonBlock({ width = "100%", height = 16, borderRadius = 8, style }) {
   const shimmer = useSharedValue(0);
 
   useEffect(() => {
@@ -31,7 +24,7 @@ function SkeletonBlock({ width = "100%", height = 16, borderRadius = 8, style }:
     <Animated.View
       style={[
         {
-          width: width as any,
+          width,
           height,
           borderRadius,
           backgroundColor: Colors.light.shimmer,
@@ -62,7 +55,7 @@ export function CustomerCardSkeleton() {
   );
 }
 
-export function CustomerListSkeleton({ count = 5 }: { count?: number }) {
+export function CustomerListSkeleton({ count = 5 }) {
   return (
     <View style={styles.list}>
       {Array.from({ length: count }).map((_, i) => (

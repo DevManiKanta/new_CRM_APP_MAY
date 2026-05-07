@@ -6,27 +6,35 @@ import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useCustomers } from "@/context/CustomerContext";
 import { useDrawer } from "@/context/DrawerContext";
-import { STATUS_CONFIG, CustomerStatus } from "@/data/customers";
+import { STATUS_CONFIG } from "@/data/customers";
 import ProfileMenu from "@/components/ProfileMenu";
 import DrawerButton from "@/components/DrawerButton";
 
-interface StatCardProps {
-  icon: string;
-  iconColor: string;
-  iconBg: string;
-  label: string;
-  value: number;
-  index: number;
+const INCENTIVE_TIERS = [
+  { min: 0, max: 1000, incentive: 100, label: "₹0 – ₹1,000" },
+  { min: 1001, max: 2500, incentive: 250, label: "₹1,001 – ₹2,500" },
+  { min: 2501, max: 5000, incentive: 500, label: "₹2,501 – ₹5,000" },
+  { min: 5001, max: 10000, incentive: 1000, label: "₹5,001 – ₹10,000" },
+  { min: 10001, max: Infinity, incentive: 2000, label: "₹10,001 +" },
+];
+
+function tierForAmount(amount) {
+  return INCENTIVE_TIERS.find((t) => amount >= t.min && amount <= t.max) || INCENTIVE_TIERS[0];
 }
 
-function StatCard({ icon, iconColor, iconBg, label, value, index }: StatCardProps) {
+function formatINR(n) {
+  const safe = Number.isFinite(n) ? n : 0;
+  return `₹${safe.toLocaleString("en-IN")}`;
+}
+
+function StatCard({ icon, iconColor, iconBg, label, value, index }) {
   return (
     <Animated.View
       entering={FadeInDown.delay(index * 80).duration(400).springify()}
       style={styles.statCard}
     >
       <View style={[styles.statIconBox, { backgroundColor: iconBg }]}>
-        <Feather name={icon as any} size={20} color={iconColor} />
+        <Feather name={icon} size={20} color={iconColor} />
       </View>
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
@@ -34,14 +42,7 @@ function StatCard({ icon, iconColor, iconBg, label, value, index }: StatCardProp
   );
 }
 
-interface CallLogItemProps {
-  customerName: string;
-  status: CustomerStatus;
-  timestamp: string;
-  index: number;
-}
-
-function CallLogItem({ customerName, status, timestamp, index }: CallLogItemProps) {
+function CallLogItem({ customerName, status, timestamp, index }) {
   const config = STATUS_CONFIG[status];
   const time = new Date(timestamp);
   const timeStr = time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -55,7 +56,7 @@ function CallLogItem({ customerName, status, timestamp, index }: CallLogItemProp
       <View style={styles.logInfo}>
         <Text style={styles.logName}>{customerName}</Text>
         <View style={[styles.logBadge, { backgroundColor: config.bg }]}>
-          <Feather name={config.icon as any} size={10} color={config.color} />
+          <Feather name={config.icon} size={10} color={config.color} />
           <Text style={[styles.logBadgeText, { color: config.color }]}>{config.label}</Text>
         </View>
       </View>
@@ -73,10 +74,33 @@ export default function StatsScreen() {
   const today = new Date().toISOString().split("T")[0];
   const todayLogs = getCallLogsByDate(today);
 
-  const totalCustomers = customers.length;
-  const activeCount = customers.filter((c) => c.tab === "active").length;
-  const followCount = customers.filter((c) => c.tab === "follow_later").length;
-  const completedCount = customers.filter((c) => c.tab === "completed").length;
+  const completedOrders = useMemo(
+    () => customers.filter((c) => c.tab === "completed"),
+    [customers]
+  );
+
+  const orderSummary = useMemo(() => {
+    const tierCounts = INCENTIVE_TIERS.map((t) => ({ ...t, count: 0, earned: 0 }));
+    let totalSales = 0;
+    let totalIncentives = 0;
+
+    for (const c of completedOrders) {
+      const amount = Number(c.totalPayment) || 0;
+      totalSales += amount;
+      const tier = tierForAmount(amount);
+      const idx = INCENTIVE_TIERS.findIndex((t) => t === tier);
+      if (idx >= 0) {
+        tierCounts[idx].count += 1;
+        tierCounts[idx].earned += tier.incentive;
+        totalIncentives += tier.incentive;
+      }
+    }
+
+    const ordersCompleted = completedOrders.length;
+    const avgBill = ordersCompleted > 0 ? Math.round(totalSales / ordersCompleted) : 0;
+
+    return { tierCounts, totalSales, totalIncentives, ordersCompleted, avgBill };
+  }, [completedOrders]);
 
   const dateLabel = useMemo(() => {
     const d = new Date();
@@ -124,90 +148,82 @@ export default function StatsScreen() {
           </View>
         </Animated.View>
 
-        <Text style={styles.sectionTitle}>Today's Call Breakdown</Text>
+        <Text style={styles.sectionTitle}>Orders & Incentives</Text>
         <View style={styles.statsGrid}>
           <StatCard
-            icon="phone-call"
+            icon="shopping-bag"
             iconColor={Colors.light.accent}
             iconBg={Colors.light.accentLight}
-            label="Attempted"
-            value={stats.attempted}
+            label="Orders Completed"
+            value={orderSummary.ordersCompleted}
             index={0}
           />
           <StatCard
-            icon="phone-missed"
-            iconColor={Colors.light.danger}
-            iconBg={Colors.light.dangerLight}
-            label="Not Responded"
-            value={stats.notResponded}
+            icon="trending-up"
+            iconColor={Colors.light.success}
+            iconBg={Colors.light.successLight}
+            label="Total Sales"
+            value={formatINR(orderSummary.totalSales)}
             index={1}
           />
           <StatCard
-            icon="clock"
-            iconColor={Colors.light.warning}
-            iconBg={Colors.light.warningLight}
-            label="Busy"
-            value={stats.busy}
-            index={2}
-          />
-          <StatCard
-            icon="phone"
-            iconColor={Colors.light.accent}
-            iconBg={Colors.light.accentLight}
-            label="Picked Call"
-            value={stats.pickedCall}
-            index={3}
-          />
-          <StatCard
-            icon="calendar"
+            icon="award"
             iconColor={Colors.light.purple}
             iconBg={Colors.light.purpleLight}
-            label="Asked Time"
-            value={stats.askedTime}
-            index={4}
-          />
-          <StatCard
-            icon="star"
-            iconColor={Colors.light.success}
-            iconBg={Colors.light.successLight}
-            label="Interested"
-            value={stats.interested}
-            index={5}
+            label="Incentives"
+            value={formatINR(orderSummary.totalIncentives)}
+            index={2}
           />
         </View>
 
-        <Text style={styles.sectionTitle}>Overall Pipeline</Text>
-        <Animated.View entering={FadeInDown.delay(500).duration(400)} style={styles.pipelineCard}>
-          <View style={styles.pipelineRow}>
-            <View style={styles.pipelineItem}>
-              <View style={[styles.pipelineDot, { backgroundColor: Colors.light.accent }]} />
-              <Text style={styles.pipelineLabel}>Active</Text>
+        <Animated.View entering={FadeInDown.delay(300).duration(400)} style={styles.incentiveCard}>
+          <View style={styles.incentiveHeader}>
+            <View>
+              <Text style={styles.incentiveTitle}>Incentive Breakdown</Text>
+              <Text style={styles.incentiveSubtitle}>
+                Avg bill {formatINR(orderSummary.avgBill)} • {orderSummary.ordersCompleted} orders
+              </Text>
             </View>
-            <Text style={styles.pipelineValue}>{activeCount}</Text>
+            <View style={styles.incentiveBadge}>
+              <Feather name="award" size={14} color={Colors.light.purple} />
+              <Text style={styles.incentiveBadgeText}>{formatINR(orderSummary.totalIncentives)}</Text>
+            </View>
           </View>
-          <View style={styles.pipelineDivider} />
-          <View style={styles.pipelineRow}>
-            <View style={styles.pipelineItem}>
-              <View style={[styles.pipelineDot, { backgroundColor: Colors.light.purple }]} />
-              <Text style={styles.pipelineLabel}>Follow Later</Text>
-            </View>
-            <Text style={styles.pipelineValue}>{followCount}</Text>
+
+          <View style={styles.tierHeaderRow}>
+            <Text style={[styles.tierHeaderText, { flex: 2 }]}>BILL RANGE</Text>
+            <Text style={[styles.tierHeaderText, styles.tierAlignRight, { flex: 1 }]}>RATE</Text>
+            <Text style={[styles.tierHeaderText, styles.tierAlignRight, { flex: 1 }]}>ORDERS</Text>
+            <Text style={[styles.tierHeaderText, styles.tierAlignRight, { flex: 1.2 }]}>EARNED</Text>
           </View>
-          <View style={styles.pipelineDivider} />
-          <View style={styles.pipelineRow}>
-            <View style={styles.pipelineItem}>
-              <View style={[styles.pipelineDot, { backgroundColor: Colors.light.success }]} />
-              <Text style={styles.pipelineLabel}>Completed</Text>
+
+          {orderSummary.tierCounts.map((tier) => (
+            <View key={tier.label} style={styles.tierRow}>
+              <View style={[styles.tierLabelWrap, { flex: 2 }]}>
+                <View style={styles.tierDot} />
+                <Text style={styles.tierLabel}>{tier.label}</Text>
+              </View>
+              <Text style={[styles.tierRate, styles.tierAlignRight, { flex: 1 }]}>
+                {formatINR(tier.incentive)}
+              </Text>
+              <Text style={[styles.tierCount, styles.tierAlignRight, { flex: 1 }]}>
+                {tier.count}
+              </Text>
+              <Text
+                style={[
+                  styles.tierEarned,
+                  styles.tierAlignRight,
+                  { flex: 1.2, color: tier.earned > 0 ? Colors.light.success : Colors.light.textTertiary },
+                ]}
+              >
+                {formatINR(tier.earned)}
+              </Text>
             </View>
-            <Text style={styles.pipelineValue}>{completedCount}</Text>
-          </View>
-          <View style={styles.pipelineDivider} />
-          <View style={styles.pipelineRow}>
-            <View style={styles.pipelineItem}>
-              <View style={[styles.pipelineDot, { backgroundColor: Colors.light.text }]} />
-              <Text style={[styles.pipelineLabel, { fontWeight: "700" as const }]}>Total</Text>
-            </View>
-            <Text style={[styles.pipelineValue, { fontWeight: "800" as const }]}>{totalCustomers}</Text>
+          ))}
+
+          <View style={styles.tierTotalRow}>
+            <Text style={styles.tierTotalLabel}>Total Incentive</Text>
+            <Text style={styles.tierTotalValue}>{formatINR(orderSummary.totalIncentives)}</Text>
           </View>
         </Animated.View>
 
@@ -265,7 +281,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "800" as const,
+    fontWeight: "800",
     color: Colors.light.text,
   },
   dateText: {
@@ -298,13 +314,13 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     fontSize: 32,
-    fontWeight: "800" as const,
+    fontWeight: "800",
   },
   summaryLabel: {
     fontSize: 12,
     color: Colors.light.textSecondary,
     marginTop: 4,
-    fontWeight: "500" as const,
+    fontWeight: "500",
   },
   summaryDivider: {
     width: 1,
@@ -313,7 +329,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "700" as const,
+    fontWeight: "700",
     color: Colors.light.text,
     paddingHorizontal: 20,
     marginBottom: 12,
@@ -350,7 +366,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 22,
-    fontWeight: "800" as const,
+    fontWeight: "800",
     color: Colors.light.text,
   },
   statLabel: {
@@ -358,9 +374,9 @@ const styles = StyleSheet.create({
     color: Colors.light.textSecondary,
     marginTop: 2,
     textAlign: "center",
-    fontWeight: "500" as const,
+    fontWeight: "500",
   },
-  pipelineCard: {
+  incentiveCard: {
     backgroundColor: Colors.light.card,
     marginHorizontal: 16,
     borderRadius: 16,
@@ -372,35 +388,104 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginBottom: 20,
   },
-  pipelineRow: {
+  incentiveHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 10,
+    marginBottom: 14,
   },
-  pipelineItem: {
+  incentiveTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: Colors.light.text,
+  },
+  incentiveSubtitle: {
+    fontSize: 12,
+    color: Colors.light.textSecondary,
+    marginTop: 2,
+    fontWeight: "600",
+  },
+  incentiveBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 6,
+    backgroundColor: Colors.light.purpleLight,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 999,
   },
-  pipelineDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  incentiveBadgeText: {
+    color: Colors.light.purple,
+    fontSize: 12,
+    fontWeight: "800",
   },
-  pipelineLabel: {
+  tierHeaderRow: {
+    flexDirection: "row",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.divider,
+  },
+  tierHeaderText: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: Colors.light.textTertiary,
+    letterSpacing: 0.5,
+  },
+  tierAlignRight: {
+    textAlign: "right",
+  },
+  tierRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.light.divider,
+  },
+  tierLabelWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  tierDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.light.accent,
+  },
+  tierLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: Colors.light.text,
+  },
+  tierRate: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: Colors.light.textSecondary,
+  },
+  tierCount: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: Colors.light.text,
+  },
+  tierEarned: {
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  tierTotalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 12,
+  },
+  tierTotalLabel: {
     fontSize: 14,
-    color: Colors.light.text,
-    fontWeight: "500" as const,
-  },
-  pipelineValue: {
-    fontSize: 18,
-    fontWeight: "700" as const,
+    fontWeight: "800",
     color: Colors.light.text,
   },
-  pipelineDivider: {
-    height: 1,
-    backgroundColor: Colors.light.divider,
+  tierTotalValue: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: Colors.light.success,
   },
   activityCard: {
     backgroundColor: Colors.light.card,
@@ -431,7 +516,7 @@ const styles = StyleSheet.create({
   },
   logName: {
     fontSize: 14,
-    fontWeight: "600" as const,
+    fontWeight: "600",
     color: Colors.light.text,
   },
   logBadge: {
@@ -445,7 +530,7 @@ const styles = StyleSheet.create({
   },
   logBadgeText: {
     fontSize: 10,
-    fontWeight: "600" as const,
+    fontWeight: "600",
   },
   logTime: {
     fontSize: 12,
@@ -474,7 +559,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: "600" as const,
+    fontWeight: "600",
     color: Colors.light.text,
   },
   emptySubtitle: {

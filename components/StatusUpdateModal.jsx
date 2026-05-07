@@ -12,16 +12,9 @@ import Animated, {
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
-import { CustomerStatus, STATUS_CONFIG } from "@/data/customers";
+import { STATUS_CONFIG } from "@/data/customers";
 
-interface StatusUpdateModalProps {
-  visible: boolean;
-  customerName: string;
-  onSelect: (status: CustomerStatus) => void;
-  onClose: () => void;
-}
-
-const statuses: CustomerStatus[] = [
+const statuses = [
   "not_responded",
   "busy",
   "picked_call",
@@ -33,9 +26,6 @@ const statuses: CustomerStatus[] = [
 function StatusOption({
   status,
   onPress,
-}: {
-  status: CustomerStatus;
-  onPress: () => void;
 }) {
   const config = STATUS_CONFIG[status];
   const scale = useSharedValue(1);
@@ -59,7 +49,7 @@ function StatusOption({
     >
       <Animated.View style={[styles.option, animatedStyle]}>
         <View style={[styles.optionIcon, { backgroundColor: config.bg }]}>
-          <Feather name={config.icon as any} size={18} color={config.color} />
+          <Feather name={config.icon} size={18} color={config.color} />
         </View>
         <View style={styles.optionInfo}>
           <Text style={styles.optionLabel}>{config.label}</Text>
@@ -82,7 +72,7 @@ export default function StatusUpdateModal({
   customerName,
   onSelect,
   onClose,
-}: StatusUpdateModalProps) {
+}) {
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
       <Animated.View
@@ -142,7 +132,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "700" as const,
+    fontWeight: "700",
     color: Colors.light.text,
     textAlign: "center",
   },
@@ -176,7 +166,7 @@ const styles = StyleSheet.create({
   },
   optionLabel: {
     fontSize: 15,
-    fontWeight: "600" as const,
+    fontWeight: "600",
     color: Colors.light.text,
   },
   optionHint: {
@@ -193,7 +183,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 15,
-    fontWeight: "600" as const,
+    fontWeight: "600",
     color: Colors.light.textSecondary,
   },
 });

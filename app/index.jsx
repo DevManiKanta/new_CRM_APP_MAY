@@ -78,7 +78,7 @@ export default function LoginScreen() {
             successOpacity.value = withTiming(1, { duration: 200 });
             successScale.value = withSpring(1, { damping: 10, stiffness: 150 });
             setTimeout(() => {
-                router.replace("/(tabs)");
+                router.replace("/punch");
             }, 800);
         } else {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -203,7 +203,7 @@ export default function LoginScreen() {
                                     onPress={() => router.push("/signup")}
                                 >
                                     <Text style={styles.signupText}>
-                                        Don't have an account?{" "}
+                                        Don’t have an account?{" "}
                                         <Text style={styles.signupBold}>Sign Up</Text>
                                     </Text>
                                 </Pressable>
